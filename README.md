@@ -6,36 +6,38 @@ Este projeto é uma solução de Inteligência Competitiva e Data Science desenv
 
 ## 1. Arquitetura de Dados e Pipeline (Medallion)
 
-A infraestrutura do projeto foi desenhada seguindo as melhores práticas de Engenharia:
-* **Camada Bronze (Ingestão):** Extração em lote via YouTube Data API v3, focando em retenção profunda (exclusão de Shorts). Dados armazenados em SQLite.
+A infraestrutura do projeto foi desenhada seguindo as melhores práticas de Engenharia e Ciência de Dados:
+* **Camada Bronze (Ingestão):** Extração em lote via YouTube Data API v3, focando em retenção profunda (exclusão de Shorts).
+* **Camadas Prata e Ouro (Modelagem):** Feature Engineering (Cálculo de TEP - Taxa de Engajamento Profundo) e aplicação de Machine Learning (Regressão Linear) para projeção de Cauda Longa e Cenário Sazonal (Hype Copa do Mundo).
 
 ## 2. Status do Projeto (Roadmap)
 
 - [x] **Fase 0:** Planejamento Estratégico e Setup de Ambiente (Venv, Git).
 - [x] **Fase 1 (Data Engineering):** Construção do Extrator de API e povoamento da Camada Bronze.
-- [ ] **Fase 2 (Data Science):** Feature Engineering e Regressão Linear (Pendente).
+- [x] **Fase 2 (Data Science):** Feature Engineering e ML de Projeção Sazonal/Orgânica.
 - [ ] **Fase 3 (Business Intelligence):** Dashboard Narrativo (Pendente).
 
 ## 3. Estrutura do Repositório
 
-    ├── dados/                      # Data Warehouse Local (SQLite - Oculto via .gitignore)
+    ├── dados/                      # Data Warehouse Local (SQLite - Oculto)
     ├── src/                        
-    │   └── extrator_youtube.py     # Script principal de Ingestão (ETL)
+    │   ├── extrator_youtube.py     # Script principal de Ingestão (ETL)
+    │   └── modelagem_dados.py      # Motor de Inteligência e Cenários Preditivos
     ├── venv/                       # Ambiente Virtual (Oculto)
-    ├── .env                        # Cofre de Credenciais (Requer YOUTUBE_API_KEY)
+    ├── .env                        # Cofre de Credenciais
     ├── .gitignore                  
     ├── requirements.txt            
     └── README.md                   
 
-## 4. Como Configurar e Executar a Fase 1
+## 4. Como Configurar e Executar as Fases 1 e 2
 
-O pipeline atual é responsável por conectar aos servidores do Google, extrair as métricas brutas de canais de nicho e descarregar no Data Warehouse local.
+O pipeline conecta aos servidores do Google, extrai as métricas, aplica os algoritmos de regressão e gera os cenários de custo para a diretoria.
 
 **Passo a passo da execução:**
 1. Clone o repositório e ative o ambiente virtual (`venv`).
 2. Instale as dependências: `pip install -r requirements.txt`.
-3. Crie um arquivo `.env` na raiz do projeto contendo a sua chave oficial do Google Cloud: `YOUTUBE_API_KEY="sua_chave"`.
-4. Execute o motor de extração:
-   `python src/extrator_youtube.py`
+3. Crie um arquivo `.env` na raiz do projeto: `YOUTUBE_API_KEY="sua_chave"`.
+4. Execute a Ingestão (Fase 1): `python src/extrator_youtube.py`
+5. Execute a Modelagem (Fase 2): `python src/modelagem_dados.py`
 
-**Resultado Esperado:** O script fará a paginação da API, removerá vídeos curtos (< 60s) e criará o arquivo `banco_gillette_campanha.db` dentro da pasta `dados/` contendo a `tb_videos_performance`.
+**Resultado:** O arquivo `banco_gillette_campanha.db` abrigará a Tabela Bronze (dados brutos) e a Tabela Ouro Analítica (projeções prontas para o BI).
