@@ -73,14 +73,18 @@ class MotorModelagemGillette:
         return df
 
     def carregar_dados_ouro(self, df):
-        """Salva a tabela analítica (Fato Planejado) pronta para o Power BI."""
-        logger.info("Salvando a Camada Ouro (tb_analitica_gillette) no banco com visão de Cenários...")
+        """Salva a tabela analítica no banco e exporta um Data Mart físico para o Power BI."""
+        logger.info("Salvando a Camada Ouro (tb_analitica_gillette) no banco...")
         conexao = sqlite3.connect(self.caminho_db)
         
         df['data_publicacao'] = df['data_publicacao'].astype(str)
         df.to_sql('tb_analitica_gillette', conexao, if_exists='replace', index=False)
         conexao.close()
-        logger.info("Fase 2 Concluída! Tabela analítica pronta para consumo.")
+        
+        # --- A PORTA DOS FUNDOS PARA O POWER BI ---
+        caminho_csv = 'dados/data_mart_gillette.csv'
+        df.to_csv(caminho_csv, index=False, sep=';', decimal=',')
+        logger.info(f"Fase 2 Concluída! Data Mart físico exportado para: {caminho_csv}")
 
 if __name__ == "__main__":
     motor = MotorModelagemGillette()
