@@ -17,6 +17,15 @@ A infraestrutura do projeto foi desenhada seguindo as melhores práticas de Enge
 * **Camada Prata e Ouro (Modelagem):** Feature Engineering (Cálculo de TEP - Taxa de Engajamento Profundo) e Regressão Linear.
 * **Módulo de Simulação (Distribuição Gaussiana):** Para modelar o "Hype" da Copa do Mundo com precisão, desenvolvemos um simulador isolado (`simulador_campanha.py`). Ele abandona multiplicadores estáticos e aplica uma Curva de Sino (Gaussiana) para prever o pico exato de visualizações no dia 30 e o subsequente decaimento (decay) pós-evento.
 
+### 2.1. Decisão Arquitetural (ADR): Sandbox de Simulação vs. DAX In-Memory
+
+Durante a fase de modelagem no Power BI, foi deliberada a estratégia de processamento da Curva Gaussiana. Havia duas abordagens possíveis:
+1. **In-Memory DAX:** Calcular a distribuição normal matematicamente "on the fly" via DAX, sem importar novas tabelas.
+2. **Sandbox de Simulação (Fato Isolada):** Gerar os dados em Python e importá-los como uma tabela Fato independente (`Fato_Simulacao_Copa`), ligando-a ao modelo via uma dimensão compartilhada de tempo de vida (`Dim_Idade_Dias`).
+
+**A Escolha:** Optamos pela abordagem **Sandbox de Simulação (Opção 2)**.
+* **Justificativa:** Embora a abordagem *In-Memory* otimize o peso do arquivo por não exigir tabelas adicionais, injetar simulações preditivas diretamente no motor DAX sobre os dados reais fere o princípio de **Isolamento de Cenários (What-If)**. Ao manter a simulação em uma tabela Fato separada (de peso irrisório, apenas 180 linhas), garantimos a integridade imaculada dos dados históricos de performance da base. Essa arquitetura (Star Schema avançado) permite auditar a simulação de forma independente e garante a governança do dado real versus o dado hipotético.
+
 ## 3. Estrutura do Repositório
 
     ├── dados/                      # Data Warehouse Local (SQLite e Data Marts em CSV)
